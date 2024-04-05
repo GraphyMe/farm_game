@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Farm Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to My Farm Game</h1>
+    <p>Your farm currently has:</p>
+    <p id="crops">0 crops</p>
+    <p id="animals">0 animals</p>
+    <p id="coins">0 coins</p>
+
+    <button id="plantCropBtn" style="display: none;" onclick="plantCrop()">Plant Crop</button>
+    <button id="feedAnimalsBtn" style="display: none;" onclick="feedAnimals()">Feed Animals</button>
+    <button onclick="sellCrops()">Sell Crops</button>
+    <button onclick="buyCrop()">Buy Crop (<span id="cropPrice">10</span> coins)</button>
+    <button onclick="buyAnimal()">Buy Animal (<span id="animalPrice">20</span> coins)</button>
+    <button onclick="buyShovel()">Buy Shovel (<span id="shovelPrice">50</span> coins)</button>
+    <button onclick="buyMeal()">Buy Meal (<span id="mealPrice">50</span> coins)</button>
+
+    <script>
+        var crops = 0;
+        var animals = 0;
+        var coins = 0;
+        var shovelBoost = 2; // Number of extra crops per planting
+        var mealBoost = 2; // Number of extra animals per feeding
+        var cropPrice = 10; // Price of selling crops per unit
+        var animalPrice = 20; // Price of buying an animal
+        var shovelPrice = 50; // Price of buying a shovel
+        var mealPrice = 50; // Price of buying a meal
+
+        // Load game state from localStorage
+        window.onload = function() {
+            loadGameState();
+        };
+
+        // Save game state to localStorage
+        function saveGameState() {
+            var gameState = {
+                crops: crops,
+                animals: animals,
+                coins: coins
+            };
+            localStorage.setItem('farmGameState', JSON.stringify(gameState));
+        }
+
+        // Load game state from localStorage
+        function loadGameState() {
+            if(localStorage.getItem('farmGameState')) {
+                var gameState = JSON.parse(localStorage.getItem('farmGameState'));
+                crops = gameState.crops;
+                animals = gameState.animals;
+                coins = gameState.coins;
+                updateDisplay();
+            }
+        }
+
+        // Auto-save game state every 5 seconds
+        setInterval(saveGameState, 5000);
+
+        // Increase prices of all items by $5 every 5 minutes
+        setInterval(function() {
+            cropPrice += 5;
+            animalPrice += 5;
+            shovelPrice += 5;
+            mealPrice += 5;
+            updatePrices();
+        }, 300000); // 5 minutes
+
+        // Auto-increment coins every 1 second
+        setInterval(function() {
+            coins += 3;
+            updateDisplay();
+        }, 1000);
+
+        function plantCrop() {
+            if (crops >= 5) {
+                crops += shovelBoost;
+                updateDisplay();
+            }
+        }
+
+        function feedAnimals() {
+            if (animals >= 1) {
+                animals += mealBoost;
+                updateDisplay();
+            }
+        }
+
+        function sellCrops() {
+            if (crops > 0) {
+                coins += crops * cropPrice * 3; // Increase coins earned
+                crops = 0;
+                updateDisplay();
+            } else {
+                alert("You don't have any crops to sell!");
+            }
+        }
+
+        function buyCrop() {
+            if (coins >= cropPrice) {
+                coins -= cropPrice;
+                crops++;
+                updateDisplay();
+            } else {
+                alert("You don't have enough coins to buy crops!");
+            }
+        }
+
+        function buyAnimal() {
+            if (coins >= animalPrice) {
+                coins -= animalPrice;
+                animals++;
+                updateDisplay();
+            } else {
+                alert("You don't have enough coins to buy animals!");
+            }
+        }
+
+        function buyShovel() {
+            if (coins >= shovelPrice) {
+                coins -= shovelPrice;
+                shovelBoost++;
+                updateDisplay();
+            } else {
+                alert("You don't have enough coins to buy a shovel!");
+            }
+        }
+
+        function buyMeal() {
+            if (coins >= mealPrice) {
+                coins -= mealPrice;
+                mealBoost++;
+                updateDisplay();
+            } else {
+                alert("You don't have enough coins to buy a meal!");
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById("crops").innerText = crops + " crops";
+            document.getElementById("animals").innerText = animals + " animals";
+            document.getElementById("coins").innerText = coins + " coins";
+        }
+
+        function updatePrices() {
+            document.getElementById("cropPrice").innerText = cropPrice;
+            document.getElementById("animalPrice").innerText = animalPrice;
+            document.getElementById("shovelPrice").innerText = shovelPrice;
+            document.getElementById("mealPrice").innerText = mealPrice;
+        }
+    </script>
+</body>
+</html>
